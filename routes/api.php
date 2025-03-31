@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -12,5 +13,15 @@ Route::get('/test', function (Request $request) {
 });
 Route::post('/test', function (Request $request) {
     $name = $request->input("name");
-    return response()->json(['message' => 'Done ' . $name], 200);
+    $email = $request->input("email");
+    $password = $request->input("password");
+    $value= User::create([
+        'name' => $name,
+        'email' => $email,
+        'password' => bcrypt($password),
+    ]);
+    return response()->json([
+        'message' => 'User created successfully',
+        'user' => $value,
+    ]);
 });
