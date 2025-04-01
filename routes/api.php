@@ -4,6 +4,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use PhpParser\Node\Stmt\TryCatch;
+use Illuminate\Support\Facades\Hash;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -60,4 +61,41 @@ Route::post('/test', function (Request $request) {
         'message' => 'User created successfully',
         'user' => $value,
     ]);
+});
+
+
+
+
+Route::post('/register', function (Request $request) {
+    $name = $request->input("name");
+    $email = $request->input("email");
+    $password = $request->input("password");
+    $value = User::create([
+        'name' => $name,
+        'email' => $email,
+        'password' => bcrypt($password),
+    ]);
+    return response()->json([
+        'message' => 'User created successfully',
+        'user' => $value,
+    ]);
+});
+
+
+
+Route::post('/login', function (Request $request) {
+   $user=User::where('email',$request->input('email'))->first();
+
+
+   if(!$user){
+    return response()->json(['message'=>'user not found'],401);
+   }
+
+   if(!Hash::check($request->input('password'),$user->password)){
+    return response()->json(['message'=>'password not match'],401);
+   }
+
+   $token=$user->createToken('auth_token')->plainTextToken;
+    return response()->json(['message'=>'login successfully','token'=>$token],200);
+
 });
